@@ -70,7 +70,7 @@ ElseIf( (Test-Path "$ScriptPath\CombinedHashes.csv" -ErrorAction SilentlyContinu
 ##* MAIN LOGIC
 ##*========================================================================
 $OutfileParams = @{
-    Encoding=[System.Text.Encoding]::ASCII
+    Encoding="utf8"
     Append=$Append
     Force=$(!$Append)
 }
@@ -85,7 +85,7 @@ If(Test-Path $CSVFilesPath)
         #import all CSV files as an object
         Import-Csv |
         #Force all columns (even if Group tag does not exist in some csv)
-        Select-Object 'Device Serial Number','Windows Product ID','Hardware Hash','Group Tag','Assigned User' |
+        Select-Object 'Device Serial Number','Windows Product ID','Hardware Hash' |
         #by forcing headers, powershell quotes all values
         #convert object list to CSV
         ConvertTo-CSV -NoTypeInformation | ForEach-Object {
@@ -93,11 +93,11 @@ If(Test-Path $CSVFilesPath)
             $Value = $_ -Replace '"', ""
 
             #out the headers but no output to screen (only if append is false; otherwise ASSUME header is already in file)
-            If($Value -eq 'Device Serial Number,Windows Product ID,Hardware Hash,Group Tag,Assigned User'){
+            If($Value -eq 'Device Serial Number,Windows Product ID,Hardware Hash'){
                 If(!$Append){$Value}
             }
             #out the headers and to screen
-            ElseIf($Value -notmatch '^,,,,$'){
+            ElseIf($Value -notmatch '^,,$'){
                 $Value
                 Write-host ("Found serial number [{0}] in file [{1}]" -f $Value.split(',')[0],$CSVName[$i])
                 $i++
